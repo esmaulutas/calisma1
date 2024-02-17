@@ -1,59 +1,58 @@
 class Library:
     def __init__(self):
-        self.books_file = open("books.txt", "a+")
+        self.file_name = "books.txt"
+        self.file = open(self.file_name, "a+")
     def __del__(self):
-        self.books_file.close()
+        self.file.close()
     def list_books(self):
-        with open("books.txt", "r") as f:
-            books = f.readlines()
+        self.file.seek(0)
+        books = self.file.readlines()
         for book in books:
-            print(f"Kitap Adı: {book.split(',')[0]}")
-            print(f"Yazar: {book.split(',')[1]}")
+            book_info = book.strip().split(',')
+            print("Kitap Adı: {}, Yazarı: {}".format(book_info[0], book_info[1]))
     def add_book(self):
-        book_name = input("Kitap Adı: ").lower()
-        author = input("Yazar: ")
-        release_year = int(input("Yayın Yılı: "))
-        page_count = int(input("Sayfa Sayısı: "))
-        book_info = f"{book_name},{author},{release_year},{page_count}\n"
-        self.books_file.write(book_info)
+        title = input("Kitap adını girin: ").lower()  # Girişin tamamen küçük harfe dönüştürülmesi
+        author = input("Kitabın yazarını girin: ")
+        release_year = input("İlk yayın yılını girin: ")
+        num_pages = input("Sayfa sayısını girin: ")
+        book_info = "{},{},{},{}\n".format(title, author, release_year, num_pages)
+        self.file.write(book_info)
+        print("Kitap başarıyla eklendi.")
     def remove_book(self):
-        book_title = input("Silinecek Kitap Adı: ").lower()
-        with open("books.txt", "r") as f:
-            books = f.readlines()
-        book_index = -1
-        for i, book in enumerate(books):
-            if book_title in book.lower():
-                book_index = i
-                break
-        if book_index != -1:
-            books.pop(book_index)
-            with open("books.txt", "w") as f:
-                f.writelines(books)
+        title = input("Silmek istediğiniz kitabın başlığını girin: ").lower()  # Girişin tamamen küçük harfe dönüştürülmesi
+        self.file.seek(0)
+        books = self.file.readlines()
+        updated_books = []
+        removed = False
+        for book in books:
+            book_info = book.strip().split(',')
+            if book_info[0].lower() != title:  # Karşılaştırma için girişin tamamen küçük harfe dönüştürülmesi
+                updated_books.append(book)
+            else:
+                removed = True
+        if removed:
+            self.file.seek(0)
+            self.file.truncate()
+            self.file.writelines(updated_books)
+            print("Kitap başarıyla silindi.")
         else:
-            print(f"{book_title} adlı kitap bulunamadı.")
-
+            print("Kitap bulunamadı.")
 lib = Library()
-
 while True:
-    print("""
-*** MENÜ ***
-1) Kitapları Listele
-2) Kitap Ekle
-3) Kitap Sil
-q) Çıkış
-""")
-
-    menu_item = input("Seçiminizi giriniz: ")
-
-    if menu_item == "1":
+    print("\n*** MENÜ ***")
+    print("1) Kitapları Listele")
+    print("2) Kitap Ekle")
+    print("3) Kitap Sil")
+    print("4) q (Çıkış)")
+    choice = input("Lütfen seçiminizi yapın (1/2/3/4): ")
+    if choice == '1':
         lib.list_books()
-    elif menu_item == "2":
+    elif choice == '2':
         lib.add_book()
-    elif menu_item == "3":
+    elif choice == '3':
         lib.remove_book()
-    elif menu_item == "q":
+    elif choice == '4' or choice.lower() == 'q':
+        print("Programdan çıkılıyor...")
         break
     else:
-        print("Geçersiz seçim.")
-
-print("Programdan çıkılıyor...")
+        print("Geçersiz seçim. Lütfen 1, 2, 3 veya 4'ü seçin.")
